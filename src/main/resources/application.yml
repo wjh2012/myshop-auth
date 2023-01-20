@@ -17,6 +17,6 @@ spring:
         use_sql_comments: true
     show_sql: false # sout에 출력
 
-logging.level:
-  org.hibernate.SQL: debug # logger에 출력
-  org.hibernate.type: trace # 쿼리 파라미터 로그 남기기
+#logging.level:
+#  org.hibernate.SQL: debug # logger에 출력
+#  org.hibernate.type: trace # 쿼리 파라미터 로그 남기기

@@ -2,8 +2,6 @@ package ggomg.myshopauth.member.service;
 
 import ggomg.myshopauth.member.entity.Member;
 import ggomg.myshopauth.member.repository.MemberRepository;
-import java.util.List;
-import java.util.NoSuchElementException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -15,38 +13,32 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public void signUp(String name, String rawPassword) {
+    public boolean signUp(String name, String rawPassword) {
         if (!isExistName(name)) {
-            Member member = Member.createMember(name, encodePassword(rawPassword));
-            memberRepository.save(member);
+            memberRepository.save(
+                    Member.createMember(name, passwordEncoder.encode(rawPassword))
+            );
+            return true;
         }
-        System.out.println("중복된 이름이 존재합니다");
+        return false;
     }
 
-    public boolean signIn(String name, String password) {
-        Member member = findMember(name);
-        try {
-            return passwordEncoder.matches(password, member.getEncodedPassword());
-        } catch (NoSuchElementException e) {
-            return false;
+    public Long signIn(String name, String password) {
+        if (isExistName(name)) {
+            Member member = memberRepository.findByName(name).get(0);
+            if (passwordEncoder.matches(password, member.getEncodedPassword())){
+                return member.getId();
+            }
+            return 0L;
         }
-    }
-
-    private String encodePassword(String rawPassword) {
-        return passwordEncoder.encode(rawPassword);
+        return 0L;
     }
 
     private boolean isExistName(String name) {
         if (memberRepository.findByName(name).isEmpty()){
+            System.out.println("없음");
             return false;
         }
         return true;
-    }
-
-    private Member findMember(String name) {
-        if (!isExistName(name)) {
-            return memberRepository.findByName(name).get(0);
-        }
-        throw new NoSuchElementException();
     }
 }
